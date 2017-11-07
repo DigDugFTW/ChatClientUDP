@@ -37,7 +37,7 @@ namespace ChatClientUDP
         }
 
         /// <summary>
-        /// splits ip and port and creates a remote IPEndPoint with that information
+        /// splits ip and port and creates a remote IPEndPoint with that informations
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
