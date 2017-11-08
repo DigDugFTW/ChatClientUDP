@@ -35,7 +35,7 @@
             this.textBoxServerAddress = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.textBoxUserName = new System.Windows.Forms.TextBox();
             this.btnCreateServer = new System.Windows.Forms.Button();
             this.btnCreateAndConnect = new System.Windows.Forms.Button();
             this.btnCancelCreateServer = new System.Windows.Forms.Button();
@@ -92,7 +92,7 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.textBox2);
+            this.groupBox2.Controls.Add(this.textBoxUserName);
             this.groupBox2.Controls.Add(this.label3);
             this.groupBox2.Location = new System.Drawing.Point(13, 10);
             this.groupBox2.Name = "groupBox2";
@@ -110,12 +110,12 @@
             this.label3.TabIndex = 0;
             this.label3.Text = "Username";
             // 
-            // textBox2
+            // textBoxUserName
             // 
-            this.textBox2.Location = new System.Drawing.Point(17, 36);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(137, 20);
-            this.textBox2.TabIndex = 4;
+            this.textBoxUserName.Location = new System.Drawing.Point(17, 36);
+            this.textBoxUserName.Name = "textBoxUserName";
+            this.textBoxUserName.Size = new System.Drawing.Size(137, 20);
+            this.textBoxUserName.TabIndex = 4;
             // 
             // btnCreateServer
             // 
@@ -169,6 +169,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.Name = "AddServerToConnectionMenu";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "AddServerToConnectionMenu";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -188,7 +189,7 @@
         private System.Windows.Forms.TextBox textBoxServerName;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox textBoxUserName;
         private System.Windows.Forms.Button btnCreateServer;
         private System.Windows.Forms.Button btnCreateAndConnect;
         private System.Windows.Forms.Button btnCancelCreateServer;

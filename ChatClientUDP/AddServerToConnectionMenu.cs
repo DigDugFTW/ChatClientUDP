@@ -13,9 +13,9 @@ namespace ChatClientUDP
 {
     public partial class AddServerToConnectionMenu : Form
     {
-        // need current reference to connection menu from this form
+        
 
-
+        // direct reference to ConnectionMenu current instance from this form
         ConnectionMenu referencedConnectionMenu = null;
 
         /// <summary>
@@ -43,15 +43,22 @@ namespace ChatClientUDP
         /// <param name="e"></param>
         private void btnCreateServer_Click(object sender, EventArgs e)
         {
-            
-            
-            string[] tempAddr = textBoxServerAddress.Text.Split(':');
-            IPEndPoint tempEndPoint = new IPEndPoint(IPAddress.Parse(tempAddr[0]), Convert.ToInt32(tempAddr[1]));
-            Server newServer = new Server(textBoxServerName.Text, tempEndPoint);
-            
-            referencedConnectionMenu.AddServer(newServer);
 
-            Close();
+            try
+            {
+                string[] tempAddr = textBoxServerAddress.Text.Split(':');
+                IPEndPoint tempEndPoint = new IPEndPoint(IPAddress.Parse(tempAddr[0]), Convert.ToInt32(tempAddr[1]));
+                Server newServer = new Server(textBoxServerName.Text, textBoxUserName.Text, tempEndPoint);
+
+                referencedConnectionMenu.AddServer(newServer);
+
+                Close();
+            }
+            catch (Exception f)
+            {
+                MessageBox.Show($"Invalid Address specified, please rety.\nBe sure to input the address in the following format:\nXXX.XXX.X.X:XXXX\nFor debug:\nMessage:\n{f.Message}\nStack Trace:\n{f.StackTrace}", "Address error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+
             
         }
 

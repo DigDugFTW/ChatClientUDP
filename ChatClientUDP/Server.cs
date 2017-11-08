@@ -10,13 +10,23 @@ namespace ChatClientUDP
 {
    public class Server : Client
     {
-        public Server(string serverName, IPEndPoint serverAddress)
+        
+        public Server(string serverName, string clientName, IPEndPoint serverAddress)
         {
             ServerName = serverName;
+            ConnectedClient = clientName;
             ServerAddress = serverAddress.Address;
             ServerPort = serverAddress.Port;
         }
 
+        private List<Client> clientList = new List<Client>();
+
+        #region Server Properties
+        public string ConnectedClient
+        {
+            set;
+            get;
+        }
         public string ServerName
         {
             set;
@@ -27,8 +37,6 @@ namespace ChatClientUDP
         {
             set; get;
         } = 0;
-
-        private List<Client> clientList = new List<Client>();
 
         /// <summary>
         /// mutable property about the servers information
@@ -49,7 +57,9 @@ namespace ChatClientUDP
         {
              get;
         }
+        #endregion
 
+        #region Edit client list
         /// <summary>
         /// Accessor to the client list
         /// </summary>
@@ -65,6 +75,7 @@ namespace ChatClientUDP
         {
             return clientList.Remove(client);
         }
+        #endregion
 
         public override string ToString()
         {
