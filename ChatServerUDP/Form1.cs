@@ -10,11 +10,14 @@ using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Diagnostics;
+
 namespace ChatServerUDP
 {
     public partial class ServerForm : Form
     {
-        
+        List<Client> clients = new List<Client>();
+        Client client = default(Client);
 
         /*
          * For both the client and the server the following issues need to be resolved:
@@ -30,17 +33,27 @@ namespace ChatServerUDP
         {
             InitializeComponent();
         }
-        
-        private Thread ServerThread;
+
+
+
+        Stopwatch serverTime = new Stopwatch();
 
         private void btnStartServer_Click(object sender, EventArgs e)
         {
-            
-            UpdateServerLog("Starting server..");
+            serverTime.Start();
+            UpdateServerLog($"Starting server. {DateTime.Now}");
            server = new UdpClient(int.Parse(textBoxServerPort.Text));
+            try
+            {
+                server.BeginReceive(new AsyncCallback(asyncCallBackRecieve), null);
+            }
+            catch (Exception f)
+            {
+                MessageBox.Show(f.Message, "Error starting server");
+            }
 
-            ServerThread = new Thread(() => StartServer());
-            ServerThread.Start();
+
+            
         }
 
         private void UpdateServerLog(string message)
@@ -52,52 +65,80 @@ namespace ChatServerUDP
             Invoke(inv);
         }
 
-        private void UpdateClientsConnectedLabel(bool decrement)
+        // needs improvement
+        
+        private void UpdateConnectedClients(Client client)
         {
-            int connectedClients = 0;
             MethodInvoker inv = delegate
             {
-                labelClientsConnected.Text = (++connectedClients).ToString();
-                if (decrement && --connectedClients >= 0)
-                    --connectedClients;
-
+                listBoxConnectedClients.Items.Add(client);
+                labelClientsConnected.Text = listBoxConnectedClients.Items.Count.ToString();
             };
             Invoke(inv);
         }
-
-        private void StartServer()
+        
+        private void asyncCallBackRecieve(IAsyncResult result)
         {
-            
-            while (true)
+            byte[] received = server.EndReceive(result, ref Address);
+            server.BeginReceive(new AsyncCallback(asyncCallBackRecieve), null);
+            string[] msg = Encoding.ASCII.GetString(received).Split('.');
+
+            // reply port / hostname / message / [connection data | ( new_connection | disconnected) client_address
+            Client newClient = default(Client);
+            if (msg.Length >= 4 && msg[3].Equals("new_connection"))
             {
-
-                
-
-                UpdateServerLog("Waiting for messages");
-                byte[] buffer = server.Receive(ref Address);
-                // replyport.hostname.message
-                string[] msg = Encoding.ASCII.GetString(buffer).Split('.');
-                
-                if(msg.Length == 4)
+                newClient = new Client()
                 {
-                    UpdateClientsConnectedLabel(false);
-                }
-                UpdateServerLog(msg[1] + " => " + msg[2]);
-
+                    UserName = msg[1],
+                    ClientAddress = IPAddress.Parse(msg[4]),
+                    ClientPort = int.Parse(msg[0]),
+                    
+                };
+                UpdateConnectedClients(newClient);
             }
-            
+
+            if (msg[2].Equals("hello"))
+            {
+                byte[] testReply = Encoding.ASCII.GetBytes("You gay");
+                server.Send(testReply, testReply.Length, new IPEndPoint(newClient.ClientAddress, newClient.ClientPort));
+            }
+            UpdateServerLog($"{msg[1]} : {msg[2]}");
         }
+
+        
 
         // need to setup stop server
         private void btnStopServer_Click(object sender, EventArgs e)
         {
-            
-            
-            UpdateServerLog($"Stopping server..");
-            
-            
-            UpdateServerLog(ServerThread.IsAlive ? $"Failure" : $"Success");
-            
+            try
+            {
+                UpdateServerLog($"Stopping server.{DateTime.Now}");
+                UpdateServerLog("Server ran for "+serverTime.Elapsed.Seconds+" seconds");
+                serverTime.Stop();
+
+                
+                
+            }
+            catch (Exception f)
+            {
+                MessageBox.Show(f.Message);
+            }
+  
+        }
+
+        
+
+        private void btnClientInfo_Click(object sender, EventArgs e)
+        {
+            client = listBoxConnectedClients.SelectedItem as Client;
+
+            if(client != null)
+            MessageBox.Show($"USERNAME:{client.UserName}\nAddress\n{client.ClientAddress}:{client.ClientPort}");
+        }
+
+        private void ServerForm_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

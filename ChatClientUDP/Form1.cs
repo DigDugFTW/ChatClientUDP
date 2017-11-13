@@ -15,8 +15,10 @@ namespace ChatClientUDP
 {
     public partial class Form1 : Form
     {
-        UdpClient client;
-
+        // global udpclient instance
+        UdpClient udpClient;
+        // get localhost ip address
+        IPAddress HostIP = Dns.GetHostEntry("localhost").AddressList[0];
         // for receiving
         //IPEndPoint clientEndPoint;
 
@@ -24,8 +26,6 @@ namespace ChatClientUDP
         {
             InitializeComponent();
         }
-
-        // idea for convert username into auto reply port number..
 
         /// <summary>
         /// *WIP.... just an idea.. don't hate me!!*
@@ -39,32 +39,49 @@ namespace ChatClientUDP
             {
                 sb.Append((int)username[i]);
             }
+            // will need to be a little more random (or less)
             string tmp = sb.ToString().Substring(0, 1) + sb.ToString().Substring(sb.ToString().Length - 3);
             return tmp;
         }
 
         Client clientObj = default(Client);
-        Server serverObj = null;
+        Server serverObj = default(Server);
 
+        /// <summary>
+        /// Connect to a server
+        /// </summary>
+        /// <param name="server">
+        /// server object that contains the parameters to the server
+        /// </param>
+        /// <param name="clientName">
+        /// clients username, used in creating the reply port
+        /// </param>
         public void ConnectToServer(Server server, string clientName)
         {
+            MessageBox.Show("Connecting to server:\n" + server);
             // will need to check that the client name is atleast 4 charaters long
             clientObj = new Client();
             serverObj = server;
             clientObj.ClientPort = int.Parse(ConvertNameToReplyPort(clientName));
+            // could be source to issue with remote connection
+            clientObj.ClientAddress = HostIP;
             clientObj.UserName = clientName;
-            MessageBox.Show($"Special reply port: {clientObj.ClientPort}");
+            MessageBox.Show($"Special reply port: {clientObj.ClientPort}\nClient info: {clientObj}");
             try
             {
-                client = new UdpClient(clientObj.ClientPort);
+                // provides our local port
+                udpClient = new UdpClient(clientObj.ClientPort);
                 
-                    // reply port / hostname / message
-                    byte[] ConnectionData = Encoding.ASCII.GetBytes($"{ConvertNameToReplyPort(clientObj.UserName)}.{clientObj.UserName}.{clientObj.UserName + " Connected!"}.{"new_connection"}");
-                    client.Send(ConnectionData, ConnectionData.Length, "127.0.0.1", server.ServerPort);
+                    // reply port / hostname / message / [connection data | ( new_connection | disconnected)] / client_address 
+                    byte[] ConnectionData = Encoding.ASCII.GetBytes($"{clientObj.ClientPort}.{clientObj.UserName}.{clientObj.UserName + " Connected!"}.{"new_connection"}.{clientObj.ClientAddress}");
+                MessageBox.Show($"{clientObj.ClientPort}.{clientObj.UserName}.{clientObj.UserName + " Connected!"}.{"new_connection"}.{clientObj.ClientAddress}");
+                    // bytes / bytes length / to server address / at the server port
+                    udpClient.Send(ConnectionData, ConnectionData.Length, serverObj.ServerAddress.ToString(), server.ServerPort);
+               
 
-                    statusStrip1.Text = $"Connected to {server.ServerName}";
+                toolStripStatusLabel.Text = $"Connected to {server.ServerName}";
 
-                client.Close();
+                
             }
             catch (Exception f)
             {
@@ -72,32 +89,60 @@ namespace ChatClientUDP
             }
 
 
-
+            ReceiveMessages();
 
         }
-        // replyport.hostname.message
+
+       
+
+        #region Asynchronous send
+        /// <summary>
+        /// Data will be send in the following order:
+        /// replyport.hostname.message | .new_connection | diconnected .address
+        /// </summary>
         private void SendMessage()
         {
-            //MessageBox.Show("Trying to send\n" + $"{ConvertNameToReplyPort(clientObj.UserName)}.{clientObj.UserName}.{textBoxSend.Text}");
             
-            client = new UdpClient(clientObj.ClientPort);
             
+
             byte[] buffer = Encoding.ASCII.GetBytes($"{ConvertNameToReplyPort(clientObj.UserName)}.{clientObj.UserName}.{textBoxSend.Text}");
-            client.Send(buffer, buffer.Length, "127.0.0.1", serverObj.ServerPort);
+
+            MessageBox.Show($"Sending: {serverObj.ServerAddress.ToString()},\n{serverObj.ServerPort}");
+            udpClient.Send(buffer, buffer.Length, serverObj.ServerAddress.ToString(), serverObj.ServerPort);
             string[] delimitedData = Encoding.ASCII.GetString(buffer).Split('.');
             listBoxReceive.Items.Add($"[{delimitedData[1]}] {delimitedData[2]}");
-            textBoxSend.Clear();
-            client.Close();
-            
-        }
-        private void ReceiveMessages()
-        {
-            // will add in a while
+            udpClient.Close();
 
+            textBoxSend.Clear();
 
         }
        
 
+        #endregion
+        // Make this asynchronous
+
+        #region Asynchronous reply
+        private void ReceiveMessages()
+        {
+            udpClient = new UdpClient(clientObj.ClientPort);
+            udpClient.BeginReceive(new AsyncCallback(asyncCallbackReply), null);
+            udpClient.Close();
+        }
+
+        private void asyncCallbackReply(IAsyncResult res)
+        {
+            IPEndPoint serverAddress = new IPEndPoint(serverObj.ServerAddress, serverObj.ServerPort);
+            byte[] receivedData = udpClient.EndReceive(res, ref serverAddress);
+            udpClient.BeginReceive(asyncCallbackReply, null);
+            listBoxReceive.Items.Add(Encoding.ASCII.GetString(receivedData));
+        }
+        #endregion
+
+
+        /// <summary>
+        /// Update received text area outside the thread
+        /// </summary>
+        /// <param name="msg"></param>
         public void UpdateTextArea(string msg)
         {
             MethodInvoker inv = delegate
@@ -116,8 +161,6 @@ namespace ChatClientUDP
         {
             SendMessage();
         }
-
-        
 
         #region Tool strip menu
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
@@ -153,16 +196,32 @@ namespace ChatClientUDP
 
         private void disconnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
+           
+            // reply port / hostname / message
+            byte[] ConnectionData = Encoding.ASCII.GetBytes($"{ConvertNameToReplyPort(clientObj.UserName)}.{clientObj.UserName}.{clientObj.UserName + " Connected!"}.{"disconnecting"}");
+            udpClient.Send(ConnectionData, ConnectionData.Length, serverObj.ServerAddress.ToString(), serverObj.ServerPort);
+            MessageBox.Show($"Sending: {serverObj.ServerAddress.ToString()},\n{serverObj.ServerPort}");
+            udpClient.Close();
+
         }
 
         #endregion
 
+        /// <summary>
+        /// Do some clean up prior to closing the form
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
            
         }
 
+        /// <summary>
+        /// allow for enter to be pressed in the text box to send data
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void textBoxSend_KeyDown(object sender, KeyEventArgs e)
         {
             if(e.KeyCode == Keys.Enter)

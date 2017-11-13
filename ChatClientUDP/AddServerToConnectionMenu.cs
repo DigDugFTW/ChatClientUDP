@@ -13,8 +13,6 @@ namespace ChatClientUDP
 {
     public partial class AddServerToConnectionMenu : Form
     {
-        
-
         // direct reference to ConnectionMenu current instance from this form
         ConnectionMenu referencedConnectionMenu = null;
 
@@ -31,6 +29,9 @@ namespace ChatClientUDP
             InitializeComponent();
         }
 
+        /// <summary>
+        /// default constructor
+        /// </summary>
         public AddServerToConnectionMenu()
         {
             InitializeComponent();
@@ -72,9 +73,19 @@ namespace ChatClientUDP
 
         }
 
+        /// <summary>
+        /// Closes the add server menu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnCancelCreateServer_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void AddServerToConnectionMenu_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

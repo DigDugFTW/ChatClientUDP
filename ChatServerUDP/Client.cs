@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 
-namespace ChatClientUDP
+namespace ChatServerUDP
 {
    public class Client
     {
@@ -96,7 +96,7 @@ namespace ChatClientUDP
         /// </returns>
         public override string ToString()
         { 
-            return $"Name:[{UserName}]Address:[{ClientAddress}]Port:[{ClientPort}]ID:[{ClientID}]";
+            return $"UName:[{UserName}]Addr:[{ClientAddress}]";
         }
 
         /// <summary>

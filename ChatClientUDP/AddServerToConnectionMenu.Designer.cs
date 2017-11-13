@@ -29,13 +29,13 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.textBoxServerName = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.textBoxServerAddress = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.textBoxServerName = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.label3 = new System.Windows.Forms.Label();
             this.textBoxUserName = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.btnCreateServer = new System.Windows.Forms.Button();
             this.btnCreateAndConnect = new System.Windows.Forms.Button();
             this.btnCancelCreateServer = new System.Windows.Forms.Button();
@@ -58,21 +58,12 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Server Info";
             // 
-            // textBoxServerName
+            // textBoxServerAddress
             // 
-            this.textBoxServerName.Location = new System.Drawing.Point(17, 39);
-            this.textBoxServerName.Name = "textBoxServerName";
-            this.textBoxServerName.Size = new System.Drawing.Size(137, 20);
-            this.textBoxServerName.TabIndex = 0;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(14, 23);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(69, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Server Name";
+            this.textBoxServerAddress.Location = new System.Drawing.Point(164, 39);
+            this.textBoxServerAddress.Name = "textBoxServerAddress";
+            this.textBoxServerAddress.Size = new System.Drawing.Size(137, 20);
+            this.textBoxServerAddress.TabIndex = 3;
             // 
             // label2
             // 
@@ -83,12 +74,21 @@
             this.label2.TabIndex = 2;
             this.label2.Text = "Address";
             // 
-            // textBoxServerAddress
+            // label1
             // 
-            this.textBoxServerAddress.Location = new System.Drawing.Point(164, 39);
-            this.textBoxServerAddress.Name = "textBoxServerAddress";
-            this.textBoxServerAddress.Size = new System.Drawing.Size(137, 20);
-            this.textBoxServerAddress.TabIndex = 3;
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(14, 23);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(69, 13);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Server Name";
+            // 
+            // textBoxServerName
+            // 
+            this.textBoxServerName.Location = new System.Drawing.Point(17, 39);
+            this.textBoxServerName.Name = "textBoxServerName";
+            this.textBoxServerName.Size = new System.Drawing.Size(137, 20);
+            this.textBoxServerName.TabIndex = 0;
             // 
             // groupBox2
             // 
@@ -101,6 +101,13 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Your information";
             // 
+            // textBoxUserName
+            // 
+            this.textBoxUserName.Location = new System.Drawing.Point(17, 36);
+            this.textBoxUserName.Name = "textBoxUserName";
+            this.textBoxUserName.Size = new System.Drawing.Size(137, 20);
+            this.textBoxUserName.TabIndex = 4;
+            // 
             // label3
             // 
             this.label3.AutoSize = true;
@@ -109,13 +116,6 @@
             this.label3.Size = new System.Drawing.Size(55, 13);
             this.label3.TabIndex = 0;
             this.label3.Text = "Username";
-            // 
-            // textBoxUserName
-            // 
-            this.textBoxUserName.Location = new System.Drawing.Point(17, 36);
-            this.textBoxUserName.Name = "textBoxUserName";
-            this.textBoxUserName.Size = new System.Drawing.Size(137, 20);
-            this.textBoxUserName.TabIndex = 4;
             // 
             // btnCreateServer
             // 
@@ -166,11 +166,12 @@
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.MaximizeBox = false;
             this.Name = "AddServerToConnectionMenu";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "AddServerToConnectionMenu";
+            this.Load += new System.EventHandler(this.AddServerToConnectionMenu_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);

@@ -105,10 +105,11 @@
             this.Controls.Add(this.btnServerAdd);
             this.Controls.Add(this.btnConnect);
             this.Controls.Add(this.groupBox1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "ConnectionMenu";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "ConnectionMenu";
+            this.Load += new System.EventHandler(this.ConnectionMenu_Load);
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
 

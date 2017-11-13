@@ -10,7 +10,9 @@ namespace ChatClientUDP
 {
    public class Server : Client
     {
-        
+        private List<Client> clientList = new List<Client>();
+
+
         public Server(string serverName, string clientName, IPEndPoint serverAddress)
         {
             ServerName = serverName;
@@ -19,7 +21,7 @@ namespace ChatClientUDP
             ServerPort = serverAddress.Port;
         }
 
-        private List<Client> clientList = new List<Client>();
+       
 
         #region Server Properties
         public string ConnectedClient
@@ -28,6 +30,18 @@ namespace ChatClientUDP
             get;
         }
         public string ServerName
+        {
+            set;
+            get;
+        }
+
+        public bool ServerHasPassword
+        {
+            set;
+            get;
+        }
+
+        public string ServerPassword
         {
             set;
             get;

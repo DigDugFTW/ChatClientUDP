@@ -14,9 +14,13 @@ namespace ChatClientUDP
     {
         // refrain from creating class objects that reference other classes, can result in stack overflow error
 
+
+        // reference to form1
         Form1 form1Ref = null;
         public ConnectionMenu(Form1 form)
         {
+            // form1 is passed as a parameter in ConnectionMenu
+            // allowing for access in this class
             form1Ref = form;
             
             InitializeComponent();
@@ -27,9 +31,6 @@ namespace ChatClientUDP
             InitializeComponent();
         }
         
-      
-       
-
         public void AddServer(Server server)
         {
             MessageBox.Show($"Adding server\nServer Name\n\t{server.ServerName}");
@@ -40,8 +41,6 @@ namespace ChatClientUDP
             listBoxServerList.Items.Remove(listBoxServerList.SelectedItem);
         }
        
-       
-
         /// <summary>
         /// Connect to the selected server
         /// </summary>
@@ -49,27 +48,40 @@ namespace ChatClientUDP
         /// <param name="e"></param>
         private void btnConnect_Click(object sender, EventArgs e)
         {
-            try
-            {
+           // try
+           // {
                 Server s = listBoxServerList.SelectedItem as Server;
                
                 form1Ref.ConnectToServer(s, s.ConnectedClient);
                 Close();
-            }
-            catch (Exception f)
-            {
-                MessageBox.Show($"Message:\n{f.Message}\nStack Trace:\n{f.StackTrace}", "Connection error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-            }
+          //  }
+          //  catch (Exception f)
+          //  {
+          //      MessageBox.Show($"Message:\n{f.Message}\nStack Trace:\n{f.StackTrace}", "Connection error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+          //  }
 
         }
 
-        // **************
+        /// <summary>
+        /// Adds a server to the connection menu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnServerAdd_Click(object sender, EventArgs e)
         {
+            // passes a reference to addServerToConnectioMenu allowing for that
+            // form to change ConnectionMenu
             AddServerToConnectionMenu addServerToConnectionMenu = new AddServerToConnectionMenu(this);
+            
+
             addServerToConnectionMenu.Show();
         }
 
+        /// <summary>
+        /// Deletes an item in the server listbox, prompts the user to confirm
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnServerRemove_Click(object sender, EventArgs e)
         {
 
@@ -83,6 +95,11 @@ namespace ChatClientUDP
       
         }
 
+        /// <summary>
+        /// Currently just shows info about the server that is selected
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnServerEdit_Click(object sender, EventArgs e)
         {
             
@@ -96,6 +113,11 @@ namespace ChatClientUDP
 
                 MessageBox.Show($"Server Name\n\t{serverName}\nServer Address\n\t{serverAddress}\nServer Port\n\t{serverPort}");
             }
+        }
+
+        private void ConnectionMenu_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
