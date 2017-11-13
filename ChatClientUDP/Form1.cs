@@ -70,14 +70,15 @@ namespace ChatClientUDP
             try
             {
                 // provides our local port
-                udpClient = new UdpClient(clientObj.ClientPort);
+                // changed constructor for udp client from clientobj.clientport to localhost
+                udpClient = new UdpClient(AddressFamily.InterNetwork);
                 
                     // reply port / hostname / message / [connection data | ( new_connection | disconnected)] / client_address 
                     byte[] ConnectionData = Encoding.ASCII.GetBytes($"{clientObj.ClientPort}.{clientObj.UserName}.{clientObj.UserName + " Connected!"}.{"new_connection"}.{clientObj.ClientAddress}");
-                MessageBox.Show($"{clientObj.ClientPort}.{clientObj.UserName}.{clientObj.UserName + " Connected!"}.{"new_connection"}.{clientObj.ClientAddress}");
+                MessageBox.Show($"{clientObj.ClientPort}.{clientObj.UserName}.{clientObj.UserName + " Connected!"}\n.{"new_connection"}.{clientObj.ClientAddress}");
                     // bytes / bytes length / to server address / at the server port
                     udpClient.Send(ConnectionData, ConnectionData.Length, serverObj.ServerAddress.ToString(), server.ServerPort);
-               
+               udpClient.Close();
 
                 toolStripStatusLabel.Text = $"Connected to {server.ServerName}";
 
@@ -102,13 +103,13 @@ namespace ChatClientUDP
         /// </summary>
         private void SendMessage()
         {
-            
+            UdpClient sendClient = new UdpClient();
             
 
             byte[] buffer = Encoding.ASCII.GetBytes($"{ConvertNameToReplyPort(clientObj.UserName)}.{clientObj.UserName}.{textBoxSend.Text}");
 
             MessageBox.Show($"Sending: {serverObj.ServerAddress.ToString()},\n{serverObj.ServerPort}");
-            udpClient.Send(buffer, buffer.Length, serverObj.ServerAddress.ToString(), serverObj.ServerPort);
+            sendClient.Send(buffer, buffer.Length, serverObj.ServerAddress.ToString(), serverObj.ServerPort);
             string[] delimitedData = Encoding.ASCII.GetString(buffer).Split('.');
             listBoxReceive.Items.Add($"[{delimitedData[1]}] {delimitedData[2]}");
             udpClient.Close();
@@ -122,19 +123,20 @@ namespace ChatClientUDP
         // Make this asynchronous
 
         #region Asynchronous reply
+            UdpClient receiveUdpClient = default(UdpClient);
         private void ReceiveMessages()
         {
-            udpClient = new UdpClient(clientObj.ClientPort);
-            udpClient.BeginReceive(new AsyncCallback(asyncCallbackReply), null);
-            udpClient.Close();
+            receiveUdpClient = new UdpClient(clientObj.ClientPort);
+            receiveUdpClient.BeginReceive(new AsyncCallback(asyncCallbackReply), null);
+            
         }
 
         private void asyncCallbackReply(IAsyncResult res)
         {
             IPEndPoint serverAddress = new IPEndPoint(serverObj.ServerAddress, serverObj.ServerPort);
-            byte[] receivedData = udpClient.EndReceive(res, ref serverAddress);
-            udpClient.BeginReceive(asyncCallbackReply, null);
-            listBoxReceive.Items.Add(Encoding.ASCII.GetString(receivedData));
+            byte[] receivedData = receiveUdpClient.EndReceive(res, ref serverAddress);
+            receiveUdpClient.BeginReceive(asyncCallbackReply, null);
+            UpdateTextArea(Encoding.ASCII.GetString(receivedData));
         }
         #endregion
 
@@ -196,9 +198,9 @@ namespace ChatClientUDP
 
         private void disconnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-           
+           udpClient = new UdpClient();
             // reply port / hostname / message
-            byte[] ConnectionData = Encoding.ASCII.GetBytes($"{ConvertNameToReplyPort(clientObj.UserName)}.{clientObj.UserName}.{clientObj.UserName + " Connected!"}.{"disconnecting"}");
+            byte[] ConnectionData = Encoding.ASCII.GetBytes($"{ConvertNameToReplyPort(clientObj.UserName)}.{clientObj.UserName}.{clientObj.UserName + " disconnected!"}.{"disconnecting"}");
             udpClient.Send(ConnectionData, ConnectionData.Length, serverObj.ServerAddress.ToString(), serverObj.ServerPort);
             MessageBox.Show($"Sending: {serverObj.ServerAddress.ToString()},\n{serverObj.ServerPort}");
             udpClient.Close();

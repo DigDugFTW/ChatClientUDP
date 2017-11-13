@@ -76,7 +76,7 @@ namespace ChatServerUDP
             };
             Invoke(inv);
         }
-        
+        Client newClient = default(Client);
         private void asyncCallBackRecieve(IAsyncResult result)
         {
             byte[] received = server.EndReceive(result, ref Address);
@@ -84,7 +84,7 @@ namespace ChatServerUDP
             string[] msg = Encoding.ASCII.GetString(received).Split('.');
 
             // reply port / hostname / message / [connection data | ( new_connection | disconnected) client_address
-            Client newClient = default(Client);
+           
             if (msg.Length >= 4 && msg[3].Equals("new_connection"))
             {
                 newClient = new Client()
@@ -96,16 +96,36 @@ namespace ChatServerUDP
                 };
                 UpdateConnectedClients(newClient);
             }
-
-            if (msg[2].Equals("hello"))
+            if(msg.Length >= 4 && msg[3].Equals("disconnecting"))
             {
-                byte[] testReply = Encoding.ASCII.GetBytes("You gay");
-                server.Send(testReply, testReply.Length, new IPEndPoint(newClient.ClientAddress, newClient.ClientPort));
+                MessageBox.Show($"Client disconnected\n{msg[2]} disconnected");
+                // fix this
+              
+            }
+
+            foreach(var client in listBoxConnectedClients.Items)
+            {
+
+                Client refClient = client as Client;
+                if (!msg[0].Equals(refClient.ClientPort.ToString()))
+                {
+                    string message = $"[{msg[1]}] {msg[2]}";
+                    byte[] buffer = Encoding.ASCII.GetBytes(message);
+                    // should be sending to refClient.ClientAddress
+                    server.Send(buffer, buffer.Length, new IPEndPoint(IPAddress.Parse("10.0.0.58"), refClient.ClientPort));
+                }
             }
             UpdateServerLog($"{msg[1]} : {msg[2]}");
         }
 
-        
+        private void RemoveItemListBoxClients(int index)
+        {
+            MethodInvoker inv = delegate
+            {
+                listBoxConnectedClients.Items.RemoveAt(index);
+            };
+            Invoke(inv);
+        }
 
         // need to setup stop server
         private void btnStopServer_Click(object sender, EventArgs e)
