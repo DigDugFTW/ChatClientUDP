@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -15,10 +16,12 @@ namespace ChatClientUDP
 {
     public partial class Form1 : Form
     {
+        
+        private readonly DebugMenu debugMenu = new DebugMenu();
         // global udpclient instance
-        UdpClient udpClient;
+        private UdpClient udpClient;
         // get localhost ip address
-        IPAddress HostIP = Dns.GetHostEntry("localhost").AddressList[0];
+        private readonly IPAddress HostIP = Dns.GetHostEntry("localhost").AddressList[0];
         // for receiving
         //IPEndPoint clientEndPoint;
 
@@ -58,15 +61,17 @@ namespace ChatClientUDP
         /// </param>
         public void ConnectToServer(Server server, string clientName)
         {
-            MessageBox.Show("Connecting to server:\n" + server);
+            // debug - connecting to server
+            debugMenu.UpdateDebugText("Connecting to server");
             // will need to check that the client name is atleast 4 charaters long
             clientObj = new Client();
             serverObj = server;
             clientObj.ClientPort = int.Parse(ConvertNameToReplyPort(clientName));
-            // could be source to issue with remote connection
+            
             clientObj.ClientAddress = HostIP;
             clientObj.UserName = clientName;
-            MessageBox.Show($"Special reply port: {clientObj.ClientPort}\nClient info: {clientObj}");
+            // debug - call clientObj implicit toString and show
+            debugMenu.UpdateDebugText(clientObj.ToString());
             try
             {
                 // provides our local port
@@ -75,12 +80,14 @@ namespace ChatClientUDP
                 
                     // reply port / hostname / message / [connection data | ( new_connection | disconnected)] / client_address 
                     byte[] ConnectionData = Encoding.ASCII.GetBytes($"{clientObj.ClientPort}.{clientObj.UserName}.{clientObj.UserName + " Connected!"}.{"new_connection"}.{clientObj.ClientAddress}");
-                MessageBox.Show($"{clientObj.ClientPort}.{clientObj.UserName}.{clientObj.UserName + " Connected!"}\n.{"new_connection"}.{clientObj.ClientAddress}");
-                    // bytes / bytes length / to server address / at the server port
-                    udpClient.Send(ConnectionData, ConnectionData.Length, serverObj.ServerAddress.ToString(), server.ServerPort);
+                // debug - $"{clientObj.ClientPort}.{clientObj.UserName}.{clientObj.UserName + " Connected!"}\n.{"new_connection"}.{clientObj.ClientAddress}"
+                debugMenu.UpdateDebugText($"{clientObj.ClientPort}.{clientObj.UserName}.{clientObj.UserName + " Connected!"}\n.{"new_connection"}.{clientObj.ClientAddress}");
+                // bytes / bytes length / to server address / at the server port
+                udpClient.Send(ConnectionData, ConnectionData.Length, serverObj.ServerAddress.ToString(), server.ServerPort);
+                debugMenu.UpdateDebugText(ConnectionData+", "+ ConnectionData.Length+", "+ serverObj.ServerAddress.ToString()+", "+ server.ServerPort);
                udpClient.Close();
 
-                toolStripStatusLabel.Text = $"Connected to {server.ServerName}";
+                toolStripStatusLabel.Text = $"Connected to {server.ServerName} {server.ServerAddress}:{server.ServerPort}";
 
                 
             }
@@ -94,9 +101,7 @@ namespace ChatClientUDP
 
         }
 
-       
-
-        #region Asynchronous send
+        #region Send
         /// <summary>
         /// Data will be send in the following order:
         /// replyport.hostname.message | .new_connection | diconnected .address
@@ -107,8 +112,8 @@ namespace ChatClientUDP
             
 
             byte[] buffer = Encoding.ASCII.GetBytes($"{ConvertNameToReplyPort(clientObj.UserName)}.{clientObj.UserName}.{textBoxSend.Text}");
-
-            MessageBox.Show($"Sending: {serverObj.ServerAddress.ToString()},\n{serverObj.ServerPort}");
+            debugMenu.UpdateDebugText($"Sending: {serverObj.ServerAddress.ToString()},\n{serverObj.ServerPort}");
+           
             sendClient.Send(buffer, buffer.Length, serverObj.ServerAddress.ToString(), serverObj.ServerPort);
             string[] delimitedData = Encoding.ASCII.GetString(buffer).Split('.');
             listBoxReceive.Items.Add($"[{delimitedData[1]}] {delimitedData[2]}");
@@ -120,8 +125,7 @@ namespace ChatClientUDP
        
 
         #endregion
-        // Make this asynchronous
-
+        
         #region Asynchronous reply
             UdpClient receiveUdpClient = default(UdpClient);
         private void ReceiveMessages()
@@ -135,11 +139,12 @@ namespace ChatClientUDP
         {
             IPEndPoint serverAddress = new IPEndPoint(serverObj.ServerAddress, serverObj.ServerPort);
             byte[] receivedData = receiveUdpClient.EndReceive(res, ref serverAddress);
+            
+            debugMenu.UpdateDebugText("Received data from "+serverAddress.Address+":"+serverAddress.Port+" Address Family "+serverAddress.AddressFamily);
             receiveUdpClient.BeginReceive(asyncCallbackReply, null);
             UpdateTextArea(Encoding.ASCII.GetString(receivedData));
         }
         #endregion
-
 
         /// <summary>
         /// Update received text area outside the thread
@@ -156,7 +161,7 @@ namespace ChatClientUDP
 
         private void Form1_Load(object sender, EventArgs e)
         {
-           
+          
         }
 
         private void btnSend_Click(object sender, EventArgs e)
@@ -173,7 +178,9 @@ namespace ChatClientUDP
 
         private void connectionDebugToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+           
+            
+            debugMenu.Show();
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)

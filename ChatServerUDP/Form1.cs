@@ -16,8 +16,8 @@ namespace ChatServerUDP
 {
     public partial class ServerForm : Form
     {
-        List<Client> clients = new List<Client>();
-        Client client = default(Client);
+        private List<Client> _clients = new List<Client>();
+        private Client _client = default(Client);
 
         /*
          * For both the client and the server the following issues need to be resolved:
@@ -27,8 +27,8 @@ namespace ChatServerUDP
          * server needs to be able to see a live list of all the connected clients
          */
 
-        UdpClient server = default(UdpClient);
-        IPEndPoint Address = new IPEndPoint(IPAddress.Any, 0);
+        private UdpClient _server = default(UdpClient);
+        private IPEndPoint _address = new IPEndPoint(IPAddress.Any, 0);
         public ServerForm()
         {
             InitializeComponent();
@@ -36,16 +36,16 @@ namespace ChatServerUDP
 
 
 
-        Stopwatch serverTime = new Stopwatch();
+        private readonly Stopwatch _serverTime = new Stopwatch();
 
         private void btnStartServer_Click(object sender, EventArgs e)
         {
-            serverTime.Start();
+            _serverTime.Start();
             UpdateServerLog($"Starting server. {DateTime.Now}");
-           server = new UdpClient(int.Parse(textBoxServerPort.Text));
+           _server = new UdpClient(int.Parse(textBoxServerPort.Text));
             try
             {
-                server.BeginReceive(new AsyncCallback(asyncCallBackRecieve), null);
+                _server.BeginReceive(new AsyncCallback(AsyncCallBackRecieve), null);
             }
             catch (Exception f)
             {
@@ -77,20 +77,22 @@ namespace ChatServerUDP
             Invoke(inv);
         }
         Client newClient = default(Client);
-        private void asyncCallBackRecieve(IAsyncResult result)
+
+        private void AsyncCallBackRecieve(IAsyncResult result)
         {
-            byte[] received = server.EndReceive(result, ref Address);
-            server.BeginReceive(new AsyncCallback(asyncCallBackRecieve), null);
+            byte[] received = _server.EndReceive(result, ref _address);
+            
+            _server.BeginReceive(new AsyncCallback(AsyncCallBackRecieve), null);
             string[] msg = Encoding.ASCII.GetString(received).Split('.');
 
             // reply port / hostname / message / [connection data | ( new_connection | disconnected) client_address
-           
+
             if (msg.Length >= 4 && msg[3].Equals("new_connection"))
             {
                 newClient = new Client()
                 {
                     UserName = msg[1],
-                    ClientAddress = IPAddress.Parse(msg[4]),
+                    ClientAddress = _address.Address,
                     ClientPort = int.Parse(msg[0]),
                     
                 };
@@ -98,22 +100,21 @@ namespace ChatServerUDP
             }
             if(msg.Length >= 4 && msg[3].Equals("disconnecting"))
             {
-                MessageBox.Show($"Client disconnected\n{msg[2]} disconnected");
-                // fix this
+                var message = $"Client disconnected\n{msg[2]} disconnected";
+                UpdateServerLog(message);
+               
               
             }
 
             foreach(var client in listBoxConnectedClients.Items)
             {
 
-                Client refClient = client as Client;
-                if (!msg[0].Equals(refClient.ClientPort.ToString()))
-                {
-                    string message = $"[{msg[1]}] {msg[2]}";
-                    byte[] buffer = Encoding.ASCII.GetBytes(message);
-                    // should be sending to refClient.ClientAddress
-                    server.Send(buffer, buffer.Length, new IPEndPoint(IPAddress.Parse("10.0.0.58"), refClient.ClientPort));
-                }
+                var refClient = client as Client;
+                if (refClient != null && msg[0].Equals(refClient.ClientPort.ToString())) continue;
+                var message = $"[{msg[1]}] {msg[2]}";
+                var buffer = Encoding.ASCII.GetBytes(message);
+                // should be sending to refClient.ClientAddress
+                _server.Send(buffer, buffer.Length, new IPEndPoint(refClient.ClientAddress, refClient.ClientPort));
             }
             UpdateServerLog($"{msg[1]} : {msg[2]}");
         }
@@ -133,11 +134,8 @@ namespace ChatServerUDP
             try
             {
                 UpdateServerLog($"Stopping server.{DateTime.Now}");
-                UpdateServerLog("Server ran for "+serverTime.Elapsed.Seconds+" seconds");
-                serverTime.Stop();
-
-                
-                
+                UpdateServerLog($"Server ran for {_serverTime.Elapsed.Days} Days, {_serverTime.Elapsed.Hours} Hours and {_serverTime.Elapsed.Minutes}");
+                _serverTime.Stop();
             }
             catch (Exception f)
             {
@@ -150,10 +148,11 @@ namespace ChatServerUDP
 
         private void btnClientInfo_Click(object sender, EventArgs e)
         {
-            client = listBoxConnectedClients.SelectedItem as Client;
+            _client = listBoxConnectedClients.SelectedItem as Client;
 
-            if(client != null)
-            MessageBox.Show($"USERNAME:{client.UserName}\nAddress\n{client.ClientAddress}:{client.ClientPort}");
+            if (_client == null) return;
+            var message = $"USERNAME:{_client.UserName}\nAddress{_client.ClientAddress}:{_client.ClientPort}";
+            MessageBox.Show(message);
         }
 
         private void ServerForm_Load(object sender, EventArgs e)

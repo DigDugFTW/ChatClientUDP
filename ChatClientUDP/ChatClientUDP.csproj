@@ -58,6 +58,12 @@
     <Compile Include="ConnectionMenu.Designer.cs">
       <DependentUpon>ConnectionMenu.cs</DependentUpon>
     </Compile>
+    <Compile Include="DebugMenu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DebugMenu.Designer.cs">
+      <DependentUpon>DebugMenu.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -72,6 +78,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ConnectionMenu.resx">
       <DependentUpon>ConnectionMenu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DebugMenu.resx">
+      <DependentUpon>DebugMenu.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
