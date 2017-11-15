@@ -14,11 +14,7 @@ namespace ChatServerUDP
 
         #region Client Properties
 
-        public long ClientID
-        {
-            private set;
-            get;
-        }
+        public long ClientID { private set; get; } = 0;
         private string[] MiscClientData
         {
             set;
@@ -28,10 +24,7 @@ namespace ChatServerUDP
         public IPAddress ClientAddress
         {
 
-            set
-            {
-                clientAddress = value;
-            }
+            set => clientAddress = value;
 
             get
             {
@@ -96,7 +89,7 @@ namespace ChatServerUDP
         /// </returns>
         public override string ToString()
         { 
-            return $"UName:[{UserName}]Addr:[{ClientAddress}]";
+            return $"Name:[{UserName}]Address:[{ClientAddress}]Port:[{ClientPort}]ID:[{ClientID}]";
         }
 
         /// <summary>

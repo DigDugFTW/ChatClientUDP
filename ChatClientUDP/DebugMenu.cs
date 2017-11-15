@@ -17,14 +17,14 @@ namespace ChatClientUDP
             InitializeComponent();
         }
 
-        public void UpdateDebugText(string text) => textBoxDebug.AppendText($"{text}\n");
-
-        private int Testing(int x, int y)
+        public void UpdateDebugText(string text)
         {
-            int z = x + y;
-            return z;
+            textBoxDebug.AppendText($"{text}\n");
         }
 
-        private void buttonClearTextArea_Click(object sender, EventArgs e) => textBoxDebug.Text = "";
+        private void buttonClearTextArea_Click(object sender, EventArgs e)
+        {
+            textBoxDebug.Text = "";
+        }
     }
 }
