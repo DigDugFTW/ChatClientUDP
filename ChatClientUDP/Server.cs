@@ -12,7 +12,7 @@ namespace ChatClientUDP
     {
         private List<Client> clientList = new List<Client>();
 
-
+        // primary constructor
         public Server(string serverName, string clientName, IPEndPoint serverAddress)
         {
             ServerName = serverName;
@@ -20,6 +20,18 @@ namespace ChatClientUDP
             ServerAddress = serverAddress.Address;
             ServerPort = serverAddress.Port;
         }
+
+        // reference constructor
+        public Server(string serverName, string clientName, IPAddress serverAddress  , int serverPort)
+        {
+            ServerName = serverName;
+            ConnectedClient = clientName;
+            ServerAddress = serverAddress;
+            ServerPort = serverPort;
+        }
+
+        // default constructor
+        public Server() { }
 
        
 
@@ -93,7 +105,12 @@ namespace ChatClientUDP
 
         public override string ToString()
         {
-            return $"[{ServerName}] {ServerAddress}:{ServerPort} | {ClientCount}";
+            return $"[{ServerName}] {ServerAddress}:{ServerPort} [{ClientCount}]";
+        }
+
+        public string ToSerializableString()
+        {
+            return $"{ServerName}_{ConnectedClient}_{ServerAddress}_{ServerPort}";
         }
 
     }

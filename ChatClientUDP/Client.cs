@@ -5,10 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization;
 
 namespace ChatClientUDP
 {
-   public class Client
+    
+   public class Client 
     {
         private IPAddress clientAddress = default(IPAddress);
 
@@ -98,6 +100,8 @@ namespace ChatClientUDP
         { 
             return $"Name:[{UserName}]Address:[{ClientAddress}]Port:[{ClientPort}]ID:[{ClientID}]";
         }
+
+        
 
         /// <summary>
         /// Returns data on client object in array format

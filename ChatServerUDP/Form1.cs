@@ -83,7 +83,7 @@ namespace ChatServerUDP
             byte[] received = _server.EndReceive(result, ref _address);
             
             _server.BeginReceive(new AsyncCallback(AsyncCallBackRecieve), null);
-            string[] msg = Encoding.ASCII.GetString(received).Split('.');
+            string[] msg = Encoding.ASCII.GetString(received).Split('&');
 
             // reply port / hostname / message / [connection data | ( new_connection | disconnected) client_address
 

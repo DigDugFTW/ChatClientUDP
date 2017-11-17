@@ -30,7 +30,6 @@
         {
             this.textBoxSend = new System.Windows.Forms.TextBox();
             this.btnSend = new System.Windows.Forms.Button();
-            this.listBoxReceive = new System.Windows.Forms.ListBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -43,6 +42,8 @@
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.textBoxReceive = new System.Windows.Forms.TextBox();
+            this.sendFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -67,17 +68,6 @@
             this.btnSend.Text = "Send";
             this.btnSend.UseVisualStyleBackColor = true;
             this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
-            // 
-            // listBoxReceive
-            // 
-            this.listBoxReceive.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.listBoxReceive.FormattingEnabled = true;
-            this.listBoxReceive.Location = new System.Drawing.Point(12, 27);
-            this.listBoxReceive.Name = "listBoxReceive";
-            this.listBoxReceive.Size = new System.Drawing.Size(383, 225);
-            this.listBoxReceive.TabIndex = 2;
             // 
             // menuStrip1
             // 
@@ -119,7 +109,8 @@
             this.connectionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.connectToolStripMenuItem,
             this.disconnectToolStripMenuItem,
-            this.connectionDebugToolStripMenuItem});
+            this.connectionDebugToolStripMenuItem,
+            this.sendFileToolStripMenuItem});
             this.connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
             this.connectionToolStripMenuItem.Size = new System.Drawing.Size(81, 20);
             this.connectionToolStripMenuItem.Text = "Connection";
@@ -176,13 +167,29 @@
             this.toolStripStatusLabel.Size = new System.Drawing.Size(104, 17);
             this.toolStripStatusLabel.Text = "Connection Status";
             // 
+            // textBoxReceive
+            // 
+            this.textBoxReceive.Location = new System.Drawing.Point(13, 28);
+            this.textBoxReceive.Multiline = true;
+            this.textBoxReceive.Name = "textBoxReceive";
+            this.textBoxReceive.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBoxReceive.Size = new System.Drawing.Size(382, 230);
+            this.textBoxReceive.TabIndex = 5;
+            // 
+            // sendFileToolStripMenuItem
+            // 
+            this.sendFileToolStripMenuItem.Name = "sendFileToolStripMenuItem";
+            this.sendFileToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.sendFileToolStripMenuItem.Text = "Send File";
+            this.sendFileToolStripMenuItem.Click += new System.EventHandler(this.sendFileToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(407, 315);
+            this.Controls.Add(this.textBoxReceive);
             this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.listBoxReceive);
             this.Controls.Add(this.btnSend);
             this.Controls.Add(this.textBoxSend);
             this.Controls.Add(this.menuStrip1);
@@ -204,7 +211,6 @@
 
         private System.Windows.Forms.TextBox textBoxSend;
         private System.Windows.Forms.Button btnSend;
-        private System.Windows.Forms.ListBox listBoxReceive;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
@@ -217,6 +223,8 @@
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem preferencesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem disconnectToolStripMenuItem;
+        private System.Windows.Forms.TextBox textBoxReceive;
+        private System.Windows.Forms.ToolStripMenuItem sendFileToolStripMenuItem;
     }
 }
 

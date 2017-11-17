@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -79,9 +80,9 @@ namespace ChatClientUDP
                 udpClient = new UdpClient(AddressFamily.InterNetwork);
                 
                     // reply port / hostname / message / [connection data | ( new_connection | disconnected)] / client_address 
-                    byte[] ConnectionData = Encoding.ASCII.GetBytes($"{clientObj.ClientPort}.{clientObj.UserName}.{clientObj.UserName + " Connected!"}.{"new_connection"}.{clientObj.ClientAddress}");
+                    byte[] ConnectionData = Encoding.ASCII.GetBytes($"{clientObj.ClientPort}&{clientObj.UserName}&{clientObj.UserName + " Connected!"}&{"new_connection"}&{clientObj.ClientAddress}");
                 // debug - $"{clientObj.ClientPort}.{clientObj.UserName}.{clientObj.UserName + " Connected!"}\n.{"new_connection"}.{clientObj.ClientAddress}"
-                debugMenu.UpdateDebugText($"{clientObj.ClientPort}.{clientObj.UserName}.{clientObj.UserName + " Connected!"}\n.{"new_connection"}.{clientObj.ClientAddress}");
+                debugMenu.UpdateDebugText($"{clientObj.ClientPort}&{clientObj.UserName}&{clientObj.UserName + " Connected!"}\n&{"new_connection"}&{clientObj.ClientAddress}");
                 // bytes / bytes length / to server address / at the server port
                 udpClient.Send(ConnectionData, ConnectionData.Length, serverObj.ServerAddress.ToString(), server.ServerPort);
                 debugMenu.UpdateDebugText(ConnectionData+", "+ ConnectionData.Length+", "+ serverObj.ServerAddress.ToString()+", "+ server.ServerPort);
@@ -108,15 +109,16 @@ namespace ChatClientUDP
         /// </summary>
         private void SendMessage()
         {
-            UdpClient sendClient = new UdpClient();
+            var sendClient = new UdpClient();
             
 
-            byte[] buffer = Encoding.ASCII.GetBytes($"{ConvertNameToReplyPort(clientObj.UserName)}.{clientObj.UserName}.{textBoxSend.Text}");
+            var buffer = Encoding.ASCII.GetBytes($"{ConvertNameToReplyPort(clientObj.UserName)}&{clientObj.UserName}&{textBoxSend.Text}");
             debugMenu.UpdateDebugText($"Sending: {serverObj.ServerAddress.ToString()},\n{serverObj.ServerPort}");
            
             sendClient.Send(buffer, buffer.Length, serverObj.ServerAddress.ToString(), serverObj.ServerPort);
-            string[] delimitedData = Encoding.ASCII.GetString(buffer).Split('.');
-            listBoxReceive.Items.Add($"[{delimitedData[1]}] {delimitedData[2]}");
+            var delimitedData = Encoding.ASCII.GetString(buffer).Split('&');
+            textBoxReceive.AppendText($"[{delimitedData[1]}] {delimitedData[2]}\r\n");
+            
             udpClient.Close();
 
             textBoxSend.Clear();
@@ -154,14 +156,15 @@ namespace ChatClientUDP
         {
             MethodInvoker inv = delegate
             {
-                listBoxReceive.Items.Add(msg);
+                textBoxReceive.AppendText(msg + "\r\n");
+                
             };
             Invoke(inv);
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-          
+            
         }
 
         private void btnSend_Click(object sender, EventArgs e)
@@ -173,6 +176,39 @@ namespace ChatClientUDP
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ConnectionMenu connectionMenu = new ConnectionMenu(this);
+            var path = Path.Combine(Path.GetTempPath(), "ServerList.txt");
+            if (!File.Exists(path))
+            {
+                File.Create(path).Close();
+            }
+            else
+            {
+                
+                    
+                debugMenu.UpdateDebugText("Reading data from ServerList file:");
+
+                foreach (var s in File.ReadAllLines(path))
+                {
+                    debugMenu.UpdateDebugText(s);
+                    var serverProps = s.Split('_');
+                    var server = new Server()
+                    {
+                        ServerName = serverProps[0],
+                        ConnectedClient = serverProps[1],
+                        ServerAddress = IPAddress.Parse(serverProps[2]),
+                        ServerPort = int.Parse(serverProps[3])
+                    };
+                    connectionMenu.AddServer(server);
+                }
+
+
+
+
+
+
+            }
+
+           
             connectionMenu.ShowDialog();
         }
 
@@ -240,6 +276,13 @@ namespace ChatClientUDP
                 e.Handled = true;
                 e.SuppressKeyPress = true;
             }
+        }
+
+        private void sendFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            udpClient = new UdpClient();
+            
+            
         }
     }
 }

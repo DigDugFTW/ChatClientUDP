@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.Linq;
@@ -9,6 +10,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
+using System.IO;
+using System.Linq.Expressions;
+
 namespace ChatClientUDP
 {
     public partial class AddServerToConnectionMenu : Form
@@ -38,29 +42,54 @@ namespace ChatClientUDP
         }
 
         /// <summary>
-        /// splits ip and port and creates a remote IPEndPoint with that informations
+        /// splits ip and port and creates a remote IPEndPoint with that information
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btnCreateServer_Click(object sender, EventArgs e)
         {
+            var filePath = @"C:\%temp%";
+            var fileName = "ServerList.txt";
+            var tempPath = Path.GetTempPath();
 
-            try
+            if (textBoxUserName.Text.Length >= 4)
             {
-                string[] tempAddr = textBoxServerAddress.Text.Split(':');
-                IPEndPoint tempEndPoint = new IPEndPoint(IPAddress.Parse(tempAddr[0]), Convert.ToInt32(tempAddr[1]));
-                Server newServer = new Server(textBoxServerName.Text, textBoxUserName.Text, tempEndPoint);
+                try
+                {
+                    string[] tempAddr = textBoxServerAddress.Text.Split(':');
+                    IPEndPoint tempEndPoint =
+                        new IPEndPoint(IPAddress.Parse(tempAddr[0]), Convert.ToInt32(tempAddr[1]));
+                    Server newServer = new Server(textBoxServerName.Text, textBoxUserName.Text, tempEndPoint);
+                    //MessageBox.Show("Writing to file " + Path.Combine(tempPath, fileName) + "\nWith data:\n" +
+                    //                newServer.ToSerializableString());
 
-                referencedConnectionMenu.AddServer(newServer);
 
-                Close();
+                    using (var sw = File.AppendText(Path.Combine(tempPath, fileName)))
+                    {
+                        sw.Write(newServer.ToSerializableString() + "\r\n");
+                    }
+
+
+
+
+
+                    referencedConnectionMenu.AddServer(newServer);
+
+                    Close();
+                }
+                catch (Exception f)
+                {
+                    MessageBox.Show(
+                        $"Invalid Address specified, please rety.\nBe sure to input the address in the following format:\nXXX.XXX.X.X:XXXX\nFor debug:\nMessage:\n{f.Message}\nStack Trace:\n{f.StackTrace}",
+                        "Address error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
             }
-            catch (Exception f)
+            else
             {
-                MessageBox.Show($"Invalid Address specified, please rety.\nBe sure to input the address in the following format:\nXXX.XXX.X.X:XXXX\nFor debug:\nMessage:\n{f.Message}\nStack Trace:\n{f.StackTrace}", "Address error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Username must be atleast 4 characters long");
             }
 
-            
+
         }
 
         /// <summary>
